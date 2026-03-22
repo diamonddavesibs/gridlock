@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = createClient()
+  const supabase = await createClient()
   const body = await request.json()
   const { row, col, guest_name, guest_email, guest_phone, owner_id } = body
 

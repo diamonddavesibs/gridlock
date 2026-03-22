@@ -4,7 +4,7 @@ import { Grid } from '@/components/grid/Grid'
 
 export default async function PoolPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: pool } = await supabase
     .from('pools')
     .select('*, squares(*), pool_numbers(*), score_snapshots(*)')

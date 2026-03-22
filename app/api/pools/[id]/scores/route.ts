@@ -21,7 +21,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
   } else {
-    supabase = createClient()
+    supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
