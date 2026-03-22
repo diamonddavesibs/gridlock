@@ -32,6 +32,9 @@ create table if not exists pools (
   team_away text not null,
   status pool_status not null default 'draft',
   organizer_id uuid not null references users(id),
+  -- NOTE: gen_random_bytes is unavailable on this Supabase tier despite pgcrypto extension.
+  -- Using md5+random as fallback. join_token is a sharing link (not a security secret) so this is acceptable.
+  -- For stronger randomness, generate the token in application code (POST /api/pools).
   join_token text unique not null default substring(md5(random()::text || clock_timestamp()::text), 1, 12),
   payout_periods jsonb not null default '["Final"]',
   game_date timestamptz,
@@ -112,6 +115,8 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 -- Squares: viewable by all, claimable by anyone (guest or user)
+-- NOTE: INSERT is intentionally open at the DB level. Application layer enforces:
+-- pool must be 'open', square not yet claimed, owner_id matches session user if provided.
 do $$ begin
   create policy "Squares are viewable by everyone" on squares for select using (true);
 exception when duplicate_object then null; end $$;
@@ -120,12 +125,14 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 -- Pool numbers: viewable when pool is locked or beyond
+-- NOTE: No INSERT policy by design — only the service-role client writes pool numbers (server-side lock logic).
 do $$ begin
   create policy "Pool numbers visible when locked" on pool_numbers for select
     using (pool_id in (select id from pools where status in ('locked','live','completed')));
 exception when duplicate_object then null; end $$;
 
 -- Score snapshots: viewable by all
+-- NOTE: No INSERT policy by design — only the service-role client writes snapshots (server-side scoring).
 do $$ begin
   create policy "Score snapshots viewable by everyone" on score_snapshots for select using (true);
 exception when duplicate_object then null; end $$;
