@@ -1,7 +1,9 @@
 import sgMail from '@sendgrid/mail'
 import { env } from '@/lib/env'
 
-sgMail.setApiKey(env.SENDGRID_API_KEY)
+if (env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(env.SENDGRID_API_KEY)
+}
 
 export interface EmailPayload {
   to: string
@@ -11,6 +13,7 @@ export interface EmailPayload {
 }
 
 export async function sendEmail({ to, subject, text, html }: EmailPayload): Promise<void> {
+  if (!env.SENDGRID_API_KEY || !env.SENDGRID_FROM_EMAIL) return
   await sgMail.send({
     from: env.SENDGRID_FROM_EMAIL,
     to,

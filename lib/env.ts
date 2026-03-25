@@ -4,11 +4,11 @@ import { z } from "zod"
 export const env = createEnv({
   server: {
     SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
-    TWILIO_ACCOUNT_SID: z.string().min(1),
-    TWILIO_AUTH_TOKEN: z.string().min(1),
-    TWILIO_FROM_NUMBER: z.string().min(1),
-    SENDGRID_API_KEY: z.string().min(1),
-    SENDGRID_FROM_EMAIL: z.string().min(1),
+    TWILIO_ACCOUNT_SID: z.string().optional(),
+    TWILIO_AUTH_TOKEN: z.string().optional(),
+    TWILIO_FROM_NUMBER: z.string().optional(),
+    SENDGRID_API_KEY: z.string().optional(),
+    SENDGRID_FROM_EMAIL: z.string().optional(),
     FOOTBALL_API_KEY: z.string().optional(),
     CRON_SECRET: z.string().optional(),
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
