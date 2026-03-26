@@ -19,8 +19,3 @@
 
 ## ?? Current Issue
 Visual Studio .vs/ folder causing Turbopack file locking errors.
-
-**Solution:** 
-1. Close VS
-2. Delete .vs and .next folders
-3. Restart and run `npm run dev`
