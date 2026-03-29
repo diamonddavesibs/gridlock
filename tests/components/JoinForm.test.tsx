@@ -68,7 +68,8 @@ describe('post-claim phase', () => {
 
   it('shows the user name in collapsed header', async () => {
     await claimSquare()
-    expect(screen.getByText('David')).toBeInTheDocument()
+    const header = screen.getByText(/Claiming as:/)
+    expect(header).toHaveTextContent('David')
   })
 
   it('resets selected square to none after claim', async () => {
