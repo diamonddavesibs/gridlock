@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import JoinForm from '@/app/join/[token]/JoinForm'
 
 // Mock Grid so tests don't need Supabase
@@ -41,5 +41,48 @@ describe('toggle-select', () => {
     fireEvent.click(screen.getByText('grid-square-7-1'))
     expect(screen.getByRole('button', { name: /Claim \(7, 1\)/ })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Claim \(2, 4\)/ })).not.toBeInTheDocument()
+  })
+})
+
+describe('post-claim phase', () => {
+  beforeEach(() => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true } as Response)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  async function claimSquare(name = 'David', square = 'grid-square-2-4', claimLabel = /Claim \(2, 4\)/) {
+    render(<JoinForm {...defaultProps} />)
+    fireEvent.change(screen.getByPlaceholderText('Your name'), { target: { value: name } })
+    fireEvent.click(screen.getByText(square))
+    fireEvent.click(screen.getByRole('button', { name: claimLabel }))
+    await waitFor(() => expect(screen.getByText(/Claiming as:/)).toBeInTheDocument())
+  }
+
+  it('collapses name/contact inputs after first claim', async () => {
+    await claimSquare()
+    expect(screen.queryByPlaceholderText('Your name')).not.toBeInTheDocument()
+  })
+
+  it('shows the user name in collapsed header', async () => {
+    await claimSquare()
+    expect(screen.getByText('David')).toBeInTheDocument()
+  })
+
+  it('resets selected square to none after claim', async () => {
+    await claimSquare()
+    expect(screen.queryByRole('button', { name: /Claim/ })).not.toBeInTheDocument()
+  })
+
+  it('shows I\'m finished button after first claim', async () => {
+    await claimSquare()
+    expect(screen.getByRole('button', { name: /I'm finished/ })).toBeInTheDocument()
+  })
+
+  it('shows success hint with last claimed coordinates', async () => {
+    await claimSquare()
+    expect(screen.getByText(/\(2, 4\) claimed/)).toBeInTheDocument()
   })
 })
