@@ -135,3 +135,26 @@ describe('confirm screen', () => {
     expect(screen.queryByText(/Confirm your squares/)).not.toBeInTheDocument()
   })
 })
+
+describe('done screen', () => {
+  beforeEach(() => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: true } as Response)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('shows personalised success message with count after confirming', async () => {
+    render(<JoinForm {...defaultProps} />)
+    fireEvent.change(screen.getByPlaceholderText('Your name'), { target: { value: 'David' } })
+    fireEvent.click(screen.getByText('grid-square-2-4'))
+    fireEvent.click(screen.getByRole('button', { name: /Claim \(2, 4\)/ }))
+    await waitFor(() => screen.getByRole('button', { name: /I'm finished/ }))
+    fireEvent.click(screen.getByRole('button', { name: /I'm finished/ }))
+    await waitFor(() => screen.getByText(/Confirm your squares/))
+    fireEvent.click(screen.getByRole('button', { name: /Looks good/ }))
+    expect(screen.getByText(/Good luck, David/)).toBeInTheDocument()
+    expect(screen.getByText(/1 square/)).toBeInTheDocument()
+  })
+})
