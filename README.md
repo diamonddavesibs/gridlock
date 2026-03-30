@@ -41,7 +41,7 @@ Create `.env.local` from `.env.local.example` and set these values:
 
 ## Vercel Deployment
 
-Project URL: `https://vercel.com/diamonddavesibs-projects/gridlock`
+Project URL: `https://vercel.com/diamonddavesibs-projects/gridlock_pool`
 
 Recommended project settings:
 
