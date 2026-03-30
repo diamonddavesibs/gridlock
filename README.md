@@ -54,6 +54,6 @@ Set all environment variables above in Vercel for the `Production` environment.
 
 This repo includes Vercel cron configuration in `vercel.json`:
 
-- `GET /api/cron/scores` every minute (`* * * * *`)
+- `GET /api/cron/scores` once daily at 12:00 UTC (`0 12 * * *`) for Hobby plan compatibility
 
 After saving settings, redeploy from the Vercel Deployments page or by pushing a commit to your production branch.
