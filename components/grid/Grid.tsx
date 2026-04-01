@@ -71,7 +71,7 @@ export function Grid({
     poolNumbers.find(n => n.axis === 'row' && n.position === pos)?.number ?? null
 
   const winnerIds = new Set(snapshots.map(s => s.winning_square_id).filter(Boolean))
-  const latestWinnerId = snapshots.at(-1)?.winning_square_id
+  const latestWinnerId = snapshots.at(-1)?.winning_square_id ?? null
 
   return (
     <div className="overflow-x-auto">
@@ -90,8 +90,8 @@ export function Grid({
                 col={col}
                 ownerName={sq?.guest_name ?? null}
                 ownerId={sq?.owner_id ?? null}
-                isWinner={winnerIds.has(sq?.id ?? '')}
-                isCurrentWinner={sq?.id === latestWinnerId}
+                isWinner={Boolean(sq?.id && winnerIds.has(sq.id))}
+                isCurrentWinner={Boolean(sq?.id && latestWinnerId && sq.id === latestWinnerId)}
                 isSelected={selectedSquare?.row === row && selectedSquare?.col === col}
                 onClaim={onClaimSquare}
               />
