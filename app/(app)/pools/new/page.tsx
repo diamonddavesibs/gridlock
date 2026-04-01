@@ -13,6 +13,8 @@ export default function NewPoolPage() {
   const [form, setForm] = useState({ name: '', sport: 'NFL', team_home: '', team_away: '', game_date: '' })
   const [periods, setPeriods] = useState(PERIOD_PRESETS['NFL'])
   const [customPeriod, setCustomPeriod] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
 
   function set(key: string, value: string) {
     setForm(f => ({ ...f, [key]: value }))
@@ -21,13 +23,37 @@ export default function NewPoolPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    setError(null)
+    setSubmitting(true)
+
+    const payload = {
+      ...form,
+      game_date: form.game_date ? new Date(form.game_date).toISOString() : undefined,
+      payout_periods: periods,
+    }
+
     const res = await fetch('/api/pools', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, payout_periods: periods }),
+      body: JSON.stringify(payload),
     })
-    const pool = await res.json()
-    if (res.ok) router.push(`/pools/${pool.id}`)
+
+    const data = await res.json().catch(() => null)
+
+    if (!res.ok) {
+      if (data?.details?.length) {
+        const details = data.details.map((d: { field?: string; message?: string }) => d.message || d.field).filter(Boolean)
+        setError(details.join(' | '))
+      } else {
+        setError(data?.error || 'Unable to create pool. Please try again.')
+      }
+      setSubmitting(false)
+      return
+    }
+
+    setSubmitting(false)
+    router.push(`/pools/${data.id}`)
   }
 
   return (
@@ -48,7 +74,10 @@ export default function NewPoolPage() {
             <button type="button" onClick={() => { if (customPeriod) { setPeriods(p => [...p, customPeriod]); setCustomPeriod('') } }} className="border rounded px-3 py-2">Add</button>
           </div>
         </div>
-        <button type="submit" className="w-full bg-blue-600 text-white rounded py-2">Create Pool</button>
+        {error && <p className="text-sm text-red-400" role="alert">{error}</p>}
+        <button type="submit" disabled={submitting} className="w-full bg-blue-600 text-white rounded py-2 disabled:opacity-60">
+          {submitting ? 'Creating...' : 'Create Pool'}
+        </button>
       </form>
     </div>
   )
